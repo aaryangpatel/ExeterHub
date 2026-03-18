@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 const Footer = () => {
@@ -28,22 +27,10 @@ const Footer = () => {
           </Link>
         </div>
       </div>
-      <div className="flex w-full items-center justify-between bg-neutral-700 px-8 py-6 lg:px-40">
+      <div className="flex w-full items-center justify-center bg-neutral-700 px-8 py-6 lg:px-40">
         <p className="font-display text-sm text-white">
           © Exeter Computing Club, Aaryan Patel
         </p>
-        <div className="flex flex-row justify-start gap-2">
-          <Link href="https://github.com/ECC-Project-Group">
-            <a className="transition hover:brightness-125">
-              <Image
-                alt="GitHub"
-                src="/github-mark.svg"
-                width={30}
-                height={30}
-              />
-            </a>
-          </Link>
-        </div>
       </div>
     </div>
   );
