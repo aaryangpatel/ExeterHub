@@ -29,7 +29,10 @@ const HeaderDropdown = ({
         <div className="absolute left-0 top-full mt-1 min-w-[160px] rounded-lg border border-white/20 bg-exeter py-2 shadow-lg dark:bg-neutral-700">
           {items.map((item) => (
             <Link key={item.href} href={item.href}>
-              <a className="block px-4 py-2 text-sm hover:bg-white/20">
+              <a
+                className="block px-4 py-2 text-sm hover:bg-white/20"
+                onClick={() => setOpen(false)}
+              >
                 {item.name}
               </a>
             </Link>
