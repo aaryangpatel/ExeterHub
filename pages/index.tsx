@@ -1,0 +1,307 @@
+import type { NextPage } from 'next';
+import Image from 'next/image';
+import { Suspense, useState, useEffect } from 'react';
+
+// Typing animation for tagline
+import Typewriter from 'typewriter-effect';
+// React implementation of three.js
+import { Canvas } from '@react-three/fiber';
+// Helper functions and abstractions built using fiber
+import {
+  BakeShadows,
+  MeshReflectorMaterial,
+  OrbitControls,
+  useGLTF,
+} from '@react-three/drei';
+// Classes directly imported from the original three library
+import { Mesh, PCFSoftShadowMap } from 'three';
+// Typedefs for the GLTF class are inconsistent across three and react-three-fiber
+// Mainly used to prevent the TypeScript compiler from complaining about nonexistent props
+// import { GLTF as GLTFThree } from 'three/examples/jsm/loaders/GLTFLoader';
+import { useTheme } from 'next-themes';
+import Link from 'next/link';
+import { BsFillArrowRightSquareFill } from 'react-icons/bs';
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+
+// The campus three.js element
+const Campus = () => {
+  const { nodes } = useGLTF('/models/campus.glb') as unknown as GLTF & {
+    nodes: {
+      Campus166: THREE.Mesh;
+    };
+  };
+
+  return (
+    <mesh
+      castShadow
+      receiveShadow
+      geometry={(nodes.Campus166 as Mesh).geometry}
+      rotation={[Math.PI / 2, 0, 0]}
+      scale={1}
+    >
+      <meshPhongMaterial color="white" />
+    </mesh>
+  );
+};
+
+const MESSAGES = [
+  'Course planning, made simple.',
+  'Discover 200+ student clubs.',
+];
+
+const Home: NextPage = () => {
+  useGLTF.preload('/models/campus.glb');
+  const { resolvedTheme } = useTheme();
+  const [messageIndex, setMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setMessageIndex((i) => (i + 1) % MESSAGES.length);
+    }, 4000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="overflow-x-hidden">
+      <div className="flex-column relative flex h-[65vh] min-h-[200px] justify-center sm:h-[80vh]">
+        <div className="absolute -z-10 h-[65vh] min-h-[200px] w-full bg-exeter dark:bg-neutral-800 sm:h-[80vh]">
+          {/* Declarative representation of the campus model */}
+          <Canvas
+            camera={{ fov: 50, position: [0, 0, 180] }}
+            shadows={{ type: PCFSoftShadowMap }}
+            gl={{ antialias: true }}
+            legacy={true}
+            className="opacity-20"
+          >
+            <pointLight
+              intensity={1.5}
+              castShadow={true}
+              shadow-mapSize={[1024, 2048]}
+              position={[0, 200, 0]}
+            />
+            <ambientLight intensity={0.15} />
+            <mesh
+              position={[0, -0.15, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              receiveShadow
+            >
+              <planeGeometry args={[1200, 1200]} />
+              <MeshReflectorMaterial
+                blur={[400, 100]}
+                resolution={1024}
+                mixBlur={1}
+                mixStrength={15}
+                depthScale={1}
+                minDepthThreshold={0.85}
+                color="#030303"
+                metalness={0.6}
+                roughness={1}
+                mirror={1}
+              />
+            </mesh>
+            <fog
+              attach="fog"
+              args={[
+                resolvedTheme === 'light' ? '#9A1D2E' : '#262626',
+                100,
+                500,
+              ]}
+            />
+            {/* Does not render the campus model until it is completely loaded */}
+            <Suspense fallback={null}>
+              <Campus />
+              <BakeShadows />
+              <OrbitControls
+                makeDefault
+                autoRotate
+                autoRotateSpeed={0.4}
+                maxPolarAngle={Math.PI / 2.8}
+                minPolarAngle={Math.PI / 2.8}
+                // position={[0, 0, 200]}
+                enableZoom={false}
+                enablePan={false}
+              />
+            </Suspense>
+          </Canvas>
+        </div>
+        <div className="pointer-events-none my-auto w-full select-none px-8 pb-40 sm:pb-0 lg:px-40">
+          <h1 className="font-display text-4xl font-black text-white md:text-5xl">
+            <Typewriter
+              key={messageIndex}
+              options={{
+                autoStart: true,
+                delay: 30,
+                cursor: '',
+              }}
+              onInit={(typewriter) => {
+                typewriter.typeString(MESSAGES[messageIndex]).start();
+              }}
+            />
+          </h1>
+        </div>
+        <div className="absolute bottom-0 flex w-full flex-col gap-8 overflow-hidden bg-gradient-to-b from-transparent to-exeter/30 px-8 py-8 dark:to-neutral-800/30 lg:px-40">
+          <div className="absolute top-0 bottom-0 left-0 right-0 -z-10 backdrop-blur-3xl backdrop-brightness-90 gradient-mask-t-0"></div>
+          <div className="top-0 h-[0.05rem] w-full place-self-start bg-white bg-opacity-50"></div>
+          <div className="absolute right-8 top-12 hidden aspect-[857/928] w-60 sm:block lg:right-40">
+            <Image src="/lion.png" layout="fill" alt="Exeter lion" />
+          </div>
+          <div className="flex flex-row gap-8 md:gap-24">
+            <div className="flex flex-col items-start">
+              <h1 className="font-display text-2xl font-bold text-white md:text-3xl">
+                450<span className="text-neutral-400">+</span>
+              </h1>
+              <p className="font-mono text-lg text-neutral-300">Courses</p>
+            </div>
+            <div className="flex flex-col items-start">
+              <h1 className="font-display text-2xl font-bold text-white md:text-3xl">
+                200<span className="text-neutral-400">+</span>
+              </h1>
+              <p className="font-mono text-lg text-neutral-300">Clubs</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="absolute -z-50 h-full w-screen overflow-hidden">
+        <div className="absolute -right-[550px] -z-50 -mt-12 rotate-1 opacity-20 dark:opacity-80">
+          <Image alt="Decal" src="/decal.svg" width={2800} height={1400} />
+        </div>
+      </div>
+      <div className="min-h-[70vh] px-8 py-12 lg:min-h-[50vh] lg:py-20 lg:px-20">
+        <div className="relative p-4 md:p-6">
+          <div className="absolute top-0 right-0 bottom-0 left-0 -z-20 bg-exeter">
+            <div className="absolute top-0 left-1/2 right-12 bottom-0 h-1/2 w-2/3 -translate-x-1/2 md:left-auto md:top-1/2 md:h-3/4 md:translate-x-0 md:-translate-y-1/2">
+              <Image
+                layout="fill"
+                src="/magnifying-glass.svg"
+                alt="Course map graphic"
+              />
+            </div>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 -z-10 h-1/2 w-full bg-gradient-to-t from-exeter to-transparent md:top-0 md:left-1/4 md:right-auto md:h-auto md:w-3/4 md:bg-gradient-to-r"></div>
+          <div className="border-1 flex flex-col justify-end gap-3 border border-white px-8 pb-8 pt-48 md:h-auto md:justify-center md:gap-6 md:px-16 md:py-32">
+            <h1 className="font-display text-4xl font-black text-white md:w-1/2 md:text-5xl">
+              Find the perfect course.
+            </h1>
+            <p className="font-display text-2xl text-neutral-200 md:w-1/2">
+              Easily search for courses based on your interests and criteria.
+            </p>
+            <Link href="/courses">
+              <a className="group">
+                <div className="flex flex-row items-center gap-3 text-white">
+                  <div className="relative">
+                    <BsFillArrowRightSquareFill className="absolute text-2xl group-hover:animate-ping" />
+                    <BsFillArrowRightSquareFill className="text-2xl" />
+                  </div>
+                  <span className="relative flex flex-col items-start justify-start gap-1 font-display text-xl font-bold leading-none">
+                    Browse courses
+                    <div className="absolute top-full h-0.5 w-0 bg-white transition-all duration-300 ease-out group-hover:w-full"></div>
+                  </span>
+                </div>
+              </a>
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div className="min-h-[70vh] px-8 py-12 lg:min-h-[50vh] lg:py-20 lg:px-20">
+        <div className="relative p-4 md:p-6">
+          <div className="absolute top-0 right-0 bottom-0 left-0 -z-20 bg-exeter">
+            <div className="absolute top-0 left-1/2 right-12 bottom-0 h-1/2 w-2/3 -translate-x-1/2 md:left-auto md:top-1/2 md:h-3/4 md:translate-x-0 md:-translate-y-1/2">
+              <Image layout="fill" src="/graph.svg" alt="Course map graphic" />
+            </div>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 -z-10 h-1/2 w-full bg-gradient-to-t from-exeter to-transparent md:top-0 md:left-1/4 md:right-auto md:h-auto md:w-3/4 md:bg-gradient-to-r"></div>
+          <div className="border-1 flex flex-col justify-end gap-3 border border-white px-8 pb-8 pt-48 md:h-auto md:justify-center md:gap-6 md:px-16 md:py-32">
+            <h1 className="font-display text-4xl font-black text-white md:w-1/2 md:text-5xl">
+              Know your prereqs.
+            </h1>
+            <p className="font-display text-2xl text-neutral-200 md:w-1/2">
+              Stop fiddling with Blackbaud. View maps of all course
+              prerequisites and see what classes you can take.
+            </p>
+            <Link href="/maps">
+              <a className="group">
+                <div className="flex flex-row items-center gap-3 text-white">
+                  <div className="relative">
+                    <BsFillArrowRightSquareFill className="absolute text-2xl group-hover:animate-ping" />
+                    <BsFillArrowRightSquareFill className="text-2xl" />
+                  </div>
+                  <span className="relative flex flex-col items-start justify-start gap-1 font-display text-xl font-bold leading-none">
+                    See the course maps
+                    <div className="absolute top-full h-0.5 w-0 bg-white transition-all duration-300 ease-out group-hover:w-full"></div>
+                  </span>
+                </div>
+              </a>
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div className="min-h-[70vh] px-8 py-12 lg:min-h-[50vh] lg:py-20 lg:px-20">
+        <div className="relative p-4 md:p-6">
+          <div className="absolute top-0 right-0 bottom-0 left-0 -z-20 bg-exeter">
+            <div className="absolute top-0 left-1/2 right-12 bottom-0 h-1/2 w-2/3 -translate-x-1/2 md:left-auto md:top-1/2 md:h-3/4 md:translate-x-0 md:-translate-y-1/2">
+              <Image layout="fill" src="/graph.svg" alt="Planner graphic" />
+            </div>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 -z-10 h-1/2 w-full bg-gradient-to-t from-exeter to-transparent md:top-0 md:left-1/4 md:right-auto md:h-auto md:w-3/4 md:bg-gradient-to-r"></div>
+          <div className="border-1 flex flex-col justify-end gap-3 border border-white px-8 pb-8 pt-48 md:h-auto md:justify-center md:gap-6 md:px-16 md:py-32">
+            <h1 className="font-display text-4xl font-black text-white md:w-1/2 md:text-5xl">
+              Plan your 4 years.
+            </h1>
+            <p className="font-display text-2xl text-neutral-200 md:w-1/2">
+              Use the spreadsheet-style planner to map out your courses,
+              track graduation requirements, and ensure you meet all prerequisites.
+            </p>
+            <Link href="/planner">
+              <a className="group">
+                <div className="flex flex-row items-center gap-3 text-white">
+                  <div className="relative">
+                    <BsFillArrowRightSquareFill className="absolute text-2xl group-hover:animate-ping" />
+                    <BsFillArrowRightSquareFill className="text-2xl" />
+                  </div>
+                  <span className="relative flex flex-col items-start justify-start gap-1 font-display text-xl font-bold leading-none">
+                    Open the planner
+                    <div className="absolute top-full h-0.5 w-0 bg-white transition-all duration-300 ease-out group-hover:w-full"></div>
+                  </span>
+                </div>
+              </a>
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div className="min-h-[70vh] px-8 py-12 lg:min-h-[50vh] lg:py-20 lg:px-20">
+        <div className="relative p-4 md:p-6">
+          <div className="absolute top-0 right-0 bottom-0 left-0 -z-20 bg-exeter">
+            <div className="absolute top-0 left-1/2 right-12 bottom-0 h-1/2 w-2/3 -translate-x-1/2 md:left-auto md:top-1/2 md:h-3/4 md:translate-x-0 md:-translate-y-1/2">
+              <Image layout="fill" src="/graph.svg" alt="Clubs graphic" />
+            </div>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 -z-10 h-1/2 w-full bg-gradient-to-t from-exeter to-transparent md:top-0 md:left-1/4 md:right-auto md:h-auto md:w-3/4 md:bg-gradient-to-r"></div>
+          <div className="border-1 flex flex-col justify-end gap-3 border border-white px-8 pb-8 pt-48 md:h-auto md:justify-center md:gap-6 md:px-16 md:py-32">
+            <h1 className="font-display text-4xl font-black text-white md:w-1/2 md:text-5xl">
+              Explore student clubs.
+            </h1>
+            <p className="font-display text-2xl text-neutral-200 md:w-1/2">
+              Browse 200+ clubs with meeting times, locations, leaders, and descriptions.
+            </p>
+            <Link href="/clubs">
+              <a className="group">
+                <div className="flex flex-row items-center gap-3 text-white">
+                  <div className="relative">
+                    <BsFillArrowRightSquareFill className="absolute text-2xl group-hover:animate-ping" />
+                    <BsFillArrowRightSquareFill className="text-2xl" />
+                  </div>
+                  <span className="relative flex flex-col items-start justify-start gap-1 font-display text-xl font-bold leading-none">
+                    Browse clubs
+                    <div className="absolute top-full h-0.5 w-0 bg-white transition-all duration-300 ease-out group-hover:w-full"></div>
+                  </span>
+                </div>
+              </a>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Home;
