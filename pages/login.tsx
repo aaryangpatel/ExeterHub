@@ -21,7 +21,7 @@ export default function LoginPage() {
   }
 
   if (user) {
-    router.replace('/planner');
+    router.replace('/');
     return null;
   }
 
@@ -32,10 +32,23 @@ export default function LoginPage() {
     const action = isSignUp ? signUp : signIn;
     action(email.trim(), password)
       .then(() => {
-        router.replace('/planner');
+        router.replace('/');
       })
-      .catch((err: { message?: string }) => {
-        setError(err.message ?? 'Something went wrong');
+      .catch((err: { code?: string; message?: string }) => {
+        const code = err.code ?? '';
+        if (
+          code === 'auth/invalid-credential' ||
+          code === 'auth/user-not-found' ||
+          code === 'auth/wrong-password'
+        ) {
+          setError('Invalid email or password. Please try again.');
+        } else if (code === 'auth/email-already-in-use') {
+          setError('This email is already registered. Sign in instead.');
+        } else if (code === 'auth/invalid-email') {
+          setError('Please enter a valid email address.');
+        } else {
+          setError(err.message ?? 'Something went wrong. Please try again.');
+        }
       })
       .finally(() => {
         setSubmitting(false);
