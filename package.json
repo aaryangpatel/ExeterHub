@@ -1,0 +1,53 @@
+{
+  "name": "exeter-course-map",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "check-types": "tsc --pretty --noEmit",
+    "check-format": "prettier --check .",
+    "format": "prettier --write .",
+    "test-all": "npm run check-format && npm run lint && npm run check-types && npm run build"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.40.0",
+    "@react-three/fiber": "^8.7.4",
+    "elkjs": "^0.8.2",
+    "firebase": "^12.10.0",
+    "framer-motion": "^7.3.2",
+    "next": "^12.2.5",
+    "next-themes": "^0.2.1",
+    "react": "^18.2.0",
+    "react-dom": "18.2.0",
+    "react-flow-renderer": "^10.3.16",
+    "react-gtm-module": "^2.0.11",
+    "react-icons": "^4.6.0",
+    "tailwind-gradient-mask-image": "^1.0.0",
+    "three": "^0.144.0",
+    "typewriter-effect": "^2.19.0",
+    "web-worker": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/googletag": "^2.2.4",
+    "@types/gtag.js": "^0.0.12",
+    "@types/node": "18.7.16",
+    "@types/react": "18.0.20",
+    "@types/react-gtm-module": "^2.0.1",
+    "@types/three": "^0.144.0",
+    "@typescript-eslint/eslint-plugin": "^5.42.0",
+    "@typescript-eslint/parser": "^5.42.0",
+    "autoprefixer": "^10.4.13",
+    "eslint": "^8.23.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-next": "12.3.0",
+    "eslint-config-prettier": "^8.3.0",
+    "next-transpile-modules": "^9.0.0",
+    "postcss": "^8.4.16",
+    "prettier": "^2.7.1",
+    "prettier-plugin-tailwindcss": "^0.1.13",
+    "tailwindcss": "^3.1.8",
+    "typescript": "4.8.3"
+  }
+}
