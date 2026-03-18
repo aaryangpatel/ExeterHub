@@ -1,8 +1,19 @@
-import { doc, getDoc, setDoc, type DocumentReference } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  type DocumentReference,
+  type Firestore,
+} from 'firebase/firestore';
 import { db } from './firebase';
 
 const PLANNER_COLLECTION = 'planners';
 const CLUBS_COLLECTION = 'joinedClubs';
+
+function getDb(): Firestore {
+  if (!db) throw new Error('Firebase not initialized');
+  return db;
+}
 
 export interface PlannerData {
   entryYear: number;
@@ -14,11 +25,11 @@ export interface JoinedClubsData {
 }
 
 function plannerRef(uid: string): DocumentReference {
-  return doc(db, PLANNER_COLLECTION, uid);
+  return doc(getDb(), PLANNER_COLLECTION, uid);
 }
 
 function clubsRef(uid: string): DocumentReference {
-  return doc(db, CLUBS_COLLECTION, uid);
+  return doc(getDb(), CLUBS_COLLECTION, uid);
 }
 
 export async function getPlannerData(uid: string): Promise<PlannerData | null> {

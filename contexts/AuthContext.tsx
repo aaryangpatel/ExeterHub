@@ -25,6 +25,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
@@ -32,15 +36,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsub();
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
-  }, []);
+  const signUp = useCallback(
+    async (email: string, password: string) => {
+      if (!auth) return;
+      await createUserWithEmailAndPassword(auth, email, password);
+    },
+    []
+  );
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
-  }, []);
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      if (!auth) return;
+      await signInWithEmailAndPassword(auth, email, password);
+    },
+    []
+  );
 
   const logout = useCallback(async () => {
+    if (!auth) return;
     await signOut(auth);
   }, []);
 
